@@ -1,0 +1,46 @@
+{% extends 'home.html' %}
+
+{% block title%} Friends and Groups {% endblock %}
+
+{% block content %}
+
+<style>
+    .custom-list {
+    list-style-type: none; /* Remove default list styles */
+    padding: 0;
+    }
+
+    .custom-list li {
+    padding: 10px;
+    border-bottom: 1px solid #ccc; /* Add a bottom border between list items */
+    font-size: large;
+    background-color: whitesmoke;
+    }
+
+    .custom-list li:last-child {
+    border-bottom: none; /* Remove bottom border for the last list item */
+    }
+
+    .custom-list li:hover {
+    background-color: lightgray; /* Change background color on hover */
+    }
+
+</style>
+    <h2>Frinds List:</h2>
+    <form action="settlement_view" method="post">
+        {% csrf_token %}
+        <ul class="custom-list">
+            {% for friend in friend_list %}
+                <!-- {% if member.mid.username  == request.user.username%}
+                {% else %} -->
+            <li>
+                <input type="checkbox" name="items" value="{{ friend.f_uid }}"> {{ friend.f_uid.username }} owes Amount: {{friend.owe_amount}}
+            </li>
+                <!-- {% endif %} -->
+            {% endfor %}
+        </ul>
+
+        <input type="submit">
+    </form>
+
+{% endblock %}

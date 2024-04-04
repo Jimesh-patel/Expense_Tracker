@@ -1,0 +1,171 @@
+{% extends 'home.html' %}
+
+{% block title%} Friends and Groups {% endblock %}
+
+{% block content %}
+    <style>
+        /* Basic styling */
+        .container {
+            margin-top: 50px; /* Add margin from the top */
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .column {
+            width: 48%;
+            background-color: #f5f5f5; 
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .column h2 {
+            margin-bottom: 20px;
+            color: #333;
+        }
+
+        .column form, .column .friend-group-links {
+            margin-bottom: 20px;
+        }
+
+        .column label {
+            display: block;
+            margin-bottom: 10px;
+            color: #555;
+        }
+
+        .column select, .column input[type="text"] {
+            width: calc(100% - 10px);
+            padding: 10px;
+            margin-bottom: 20px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+
+        .column button, .column input[type="submit"] {
+            width: 100%;
+            padding: 10px;
+            background-color: #4d4d4d; /* Classic dark gray button */
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        .column button:hover, .column input[type="submit"]:hover {
+            background-color: #333; /* Darken the button on hover */
+        }
+
+        .column hr {
+            margin: 20px 0;
+            border: 1px solid #ddd;
+        }
+
+        /* Styling for friend and group links */
+        .friend-group-links a {
+            display: block;
+            margin-bottom: 5px;
+            text-decoration: none;
+            color: #007bff; /* Classic blue link color */
+            transition: color 0.3s ease;
+        }
+
+        .friend-group-links a:hover {
+            color: #0056b3; /* Darken the link color on hover */
+        }
+
+        /* for pop up message */
+
+        .popup-container {
+      position: fixed;
+      top: 17%;
+      right: 0%;
+      transform: translate(-50%, -50%);
+      background-color: #fff;
+      border: 1px solid #ccc;
+      padding: 20px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+      z-index: 9999;
+      color: red;
+    }
+
+    .close-btn {
+      position: absolute;
+      top: 5px;
+      right: 5px;
+      cursor: pointer;
+    }
+    </style>
+    <br>
+    <br>
+    <h2>Share Expenses with:</h2>
+
+    <div class="messages">
+        {% for message in messages %}
+        <div class="popup-container">
+          <div>{{ message }} <span class="close-btn">×</span> </div>
+          
+        </div>
+        {% endfor %}
+      </div>
+    <div class="container">
+        <!-- Left side for Friends -->
+        <div class="column">
+            <h2>Add Friends</h2>
+
+            <h3 style="color: red; text-align: center;">{{friend_error}}</h3>
+            <form action="add_friend" method="post">
+                {% csrf_token %}
+                <label for="user_dropdown">Select a User:</label>
+                <select id="user_dropdown" name="selected_value">
+                    {% for user in users %}
+                    <option value="{{ user.uid }}">{{ user.username }}</option>
+                    {% endfor %}
+                </select>
+                <button type="submit">Add</button>
+            </form>
+
+            <div class="friend-group-links">
+                <h2>Friends List</h2>
+                {% for friend in friend_list %}
+                <span style="display: inline-block; margin-right: 10px;">{{ friend.f_uid }}</span>
+                <a href="friend_view/{{ friend.f_uid }}"><input type="button" value="add expense"></a>
+                {% endfor %}
+            </div>
+            
+        </div>
+
+        <!-- Right side for Groups -->
+        <div class="column">
+            <h2>Add Group:</h2>
+
+            <h3 style="color: red; text-align: center;">{{error}}</h3>
+            <form action="add_group" method="post">
+                {% csrf_token %}
+                <label for="group_name">Group Name:</label>
+                <input type="text" id="group_name" name="gname" required>
+                <input type="submit" value="Add">
+            </form>
+
+            <div class="friend-group-links">
+                <h2>Group List</h2>
+                {% for group in group_list %}
+                <span style="display: inline-block; margin-right: 10px;">{{ group.gname }}</span>
+                <a href="group_view/{{group.gname}}"><input type="button" value="add expense"></a>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Function to close popup when close button is clicked
+        var closeButtons = document.querySelectorAll('.close-btn');
+        closeButtons.forEach(function (closeButton) {
+          closeButton.addEventListener('click', function () {
+            var popupContainer = closeButton.parentNode;
+            popupContainer.parentNode.removeChild(popupContainer);
+          });
+        });
+      </script>
+{% endblock %}

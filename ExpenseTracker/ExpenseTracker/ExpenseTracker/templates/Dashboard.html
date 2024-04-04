@@ -1,0 +1,83 @@
+{% extends 'home.html' %}
+
+{% block title%} Dashboard {% endblock %}
+
+{% block content %}
+    <style>
+        table {
+            width: 95%;
+            border-collapse: collapse;
+            border: 1px solid #ddd;
+            margin-top: 35px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        th, td {
+            padding: 8px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+
+        th {
+            background-color: #f2f2f2;
+        }
+
+        tr:hover {
+            background-color: #f5f5f5;
+        }
+    </style>
+
+    {% csrf_token %}
+    <table>
+        <thead>
+            <tr>
+                <th>Payer</th>
+                <th>Description</th>
+                <th>Date</th>
+                <th>Time</th>
+                <th>Amount</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for expense in expense_list %}
+            <tr>
+                <td>{{ expense.shared_uid }}</td>
+                <td>{{ expense.description }}</td>
+                <td>{{ expense.date_field }}</td>
+                <td>{{ expense.time_field }}</td>
+                <td>{{ expense.total_amount }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    <br>
+    <br>
+    <h2>Expenses in Groups:</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>Group</th>
+                <th>Payer</th>
+                <th>Description</th>
+                <th>Date</th>
+                <th>Time</th>
+                <th>Amount</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for expense in group_expense_list %}
+            <tr>
+                <td>{{ expense.gid.gname }}</td>
+                <td>{{ expense.payer_uid }}</td>
+                <td>{{ expense.description }}</td>
+                <td>{{ expense.date_field }}</td>
+                <td>{{ expense.time_field }}</td>
+                <td>{{ expense.total_amount }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+
+{% endblock %}

@@ -1,0 +1,268 @@
+{% extends 'home.html' %}
+
+{% block title%} Friends {% endblock %}
+
+{% block content %}
+    <style>
+        /* Common styles for consistent design */
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f2f2f2;
+            margin: 0;
+            padding: 0;
+            height: 100vh;
+            /* Set body height to 100% of viewport height */
+            display: flex;
+            flex-direction: column;
+            /* Align children vertically */
+        }
+
+        .header {
+            background-color: #333;
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .container {
+            flex: 1;
+            /* Expand container to fill remaining height */
+            margin: 20px auto;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            overflow-y: auto;
+            /* Add vertical scrollbar if content exceeds container height */
+        }
+
+        .section {
+            margin-bottom: 20px;
+        }
+
+        .container-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+        }
+
+        .container-left,
+        .container-right {
+            width: 48%;
+            padding: 10px;
+            border-radius: 5px;
+            background-color: #f9f9f9;
+            box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+        }
+
+        .container-left {
+            margin-right: 10px;
+        }
+
+        .container-right {
+            margin-left: 10px;
+        }
+
+        /* Custom input styles */
+        .input-group label {
+            display: block;
+            margin-bottom: 5px;
+            color: #333;
+        }
+
+        .input-group input[type="text"],
+        .input-group input[type="number"],
+        .input-group input[type="date"],
+        .input-group input[type="time"] {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-size: 14px; /* Reduced font size for a classic look */
+            color: #333;
+            box-sizing: border-box;
+        }
+
+        .input-group input[type="submit"] {
+            width: auto;
+            padding: 10px 20px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px; /* Increased font size for emphasis */
+            cursor: pointer;
+        }
+
+        .input-group input[type="submit"]:hover {
+            background-color: #45a049;
+        }
+
+        /* Styles for the expense containers */
+        .expense-container {
+            margin-top: 20px;
+            padding: 20px;
+            background-color: #f9f9f9;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+            box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+        }
+
+        /* for the expense list */
+
+    .chat-list {
+    list-style-type: none;
+    padding: 0;
+    margin: 0;
+    }
+
+    /* Style for individual chat blocks */
+    .chat-block {
+    background-color: #f1f1f1;
+    border-radius: 8px;
+    padding: 10px;
+    margin-bottom: 10px;
+    }
+
+    /* Style for the sender's chat block */
+    .sender {
+    background-color: #dcf8c6; /* Light green */
+    text-align: right;
+    }
+
+    /* Style for the receiver's chat block */
+    .receiver {
+    background-color: #e8e8e8; /* Light gray */
+    }
+
+    /* Style for chat message text */
+    .chat-message {
+    font-size: 14px;
+    }
+
+    /* Style for chat timestamp */
+    .timestamp {
+    font-size: 12px;
+    color: #666;
+    }
+    </style>
+
+    <div class="container">
+
+        <div class="section">
+            <h1>Group: {{ group }}</h1>
+        </div>
+
+        <hr class="section">
+
+        <div class="section">
+            <!-- Add group members -->
+            <form action="add_group_members" method="post">
+                {% csrf_token %}
+                <label for="friend_dropdown">Select a friend:</label><br>
+                <select id="friend_dropdown" name="selected_value">
+                    {% for friend in friend_list %}
+                        <option value="{{ friend.f_uid }}">{{ friend.f_uid }}</option>
+                    {% endfor %}
+                </select>
+                <input type="hidden" name="gname" value="{{ group }}">
+                <button type="submit">Add</button>
+            </form>
+        </div>
+
+        <div class="section container-content">
+            <div class="container-left">
+                <h2>Members List:</h2>
+                {% for member in members_list %}
+                    <h3>{{ member.mid.username }}</h3>
+                {% endfor %}
+            </div>
+
+            <div class="container-right">
+                <h2>Owe_amount data:</h2>
+                {% for reletion in reletion_list %}
+                    <h3>{{ reletion.owe_amount }}</h3>
+                {% endfor %}
+            </div>
+        </div>
+
+        <div class="section">
+            <div class="expense-container">
+                <h2>Add Expense:</h2>
+                <form action="add_group_expense_record" method="post">
+                    {% csrf_token %}
+                    <div class="input-group">
+                        <label for="total_amount">Amount:</label>
+                        <input type="number" name="total_amount" required>
+                    </div>
+
+                    <div class="input-group">
+                        <label for="description">Description:</label>
+                        <input type="text" name="description">
+                    </div>
+
+                    <div class="input-group">
+                        <label for="date">Date:</label>
+                        <input type="date" id="date" name="date_field" required>
+                    </div>
+
+                    <div class="input-group">
+                        <label for="time">Time:</label>
+                        <input type="time" id="time" name="time_field" required>
+                    </div>
+
+                    <input type="hidden" name="gname" value="{{ group }}">
+
+                    <h3>Split Among:</h3>
+                    <ul>
+                        {% for member in members_list %}
+                            {% if member.mid.username != request.user.username %}
+                                <li>
+                                    <input type="checkbox" name="items" value="{{ member.mid }}" checked> {{ member.mid.username }}
+                                </li>
+                            {% endif %}
+                        {% endfor %}
+                    </ul>
+
+                    <input type="submit" value="Submit">
+                </form>
+
+                <script>
+                    // Get current date and time
+                    var currentDate = new Date().toISOString().slice(0, 10);
+                    var currentTime = new Date().toTimeString().slice(0, 5);
+                  
+                    // Set initial values for date and time inputs
+                    document.getElementById('date').value = currentDate;
+                    document.getElementById('time').value = currentTime;
+                  </script>
+            </div>
+        </div>
+
+        <hr class="section">
+
+        <div class="section">
+            <!-- Showing the expense records -->
+            <h2>Expense List</h2>
+            {% for expense in expense_list %}
+                {% if expense.payer_uid == request.user %}
+                <li class="chat-block sender">
+                    <span class="chat-message">{{expense.payer_uid}}</span><br>
+                    <span class="chat-message">{{expense.description}}</span>
+                        <h2 style="color: red; text-align: right;">{{expense.total_amount}}</h2>
+                    <span class="timestamp">{{expense.date_field}}</span>
+                </li>
+                {% else %}
+                <li class="chat-block receiver">
+                    <span class="chat-message">{{expense.payer_uid}}</span><br>
+                    <span class="chat-message">{{expense.description}}</span>
+                        <h2>{{expense.total_amount}}</h2>
+                    <span class="timestamp">{{expense.date_field}}</span>
+                </li>
+                {% endif %}
+            {% endfor %}
+        </div>
+
+    </div>
+
+{% endblock %}
